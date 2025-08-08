@@ -1,0 +1,5 @@
+@SurfTimer.Api_HostAddress = https://localhost:7026
+
+GET {{SurfTimer.Api_HostAddress}}/api/playerprofile
+
+###
