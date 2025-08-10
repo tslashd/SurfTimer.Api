@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace CS2_Surf_NET_API.Controllers
+namespace SurfTimer.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

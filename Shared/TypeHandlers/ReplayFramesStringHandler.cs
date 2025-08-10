@@ -4,7 +4,7 @@ using System.Data;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace CS2_Surf_NET_API.Shared.TypeHandlers
+namespace SurfTimer.Api.Shared.TypeHandlers
 {
     public class ReplayFramesStringHandler : SqlMapper.TypeHandler<ReplayFramesString>
     {
@@ -29,11 +29,6 @@ namespace CS2_Surf_NET_API.Shared.TypeHandlers
 
             return new ReplayFramesString(string.Empty);
         }
-
-        //public override void SetValue(IDbDataParameter parameter, ReplayFramesString? value)
-        //{
-        //    parameter.Value = Convert.FromBase64String(value?.Value);
-        //}
 
         public override void SetValue(IDbDataParameter parameter, ReplayFramesString? value)
         {

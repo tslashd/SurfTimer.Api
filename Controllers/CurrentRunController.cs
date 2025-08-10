@@ -1,10 +1,11 @@
-﻿using CS2_Surf_NET_API.Data;
-using Dapper;
+﻿using Dapper;
 using Microsoft.AspNetCore.Mvc;
+using SurfTimer.Api.Data;
 using SurfTimer.Shared.DTO;
+using SurfTimer.Shared.Entities;
 using SurfTimer.Shared.Sql;
 
-namespace CS2_Surf_NET_API.Controllers
+namespace SurfTimer.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -19,11 +20,11 @@ namespace CS2_Surf_NET_API.Controllers
             _db = db;
         }
 
-        [ProducesResponseType(typeof(PostResponseDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(PostResponseEntity), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpPost("saveMapTime")]
         [EndpointSummary("Add a new MapTime entry")]
-        public async Task<ActionResult<PostResponseDto>> InsertMapTime([FromBody] MapTimeRunDataDto mapRunDataDto)
+        public async Task<ActionResult<PostResponseEntity>> InsertMapTime([FromBody] MapTimeRunDataDto mapRunDataDto)
         {
             var runDate = (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
@@ -65,21 +66,21 @@ namespace CS2_Surf_NET_API.Controllers
                     {
                         Console.WriteLine($"Moving onto inserting {mapRunDataDto.Checkpoints.Count} checkpoints");
                         foreach (var checkpointParams in from cp in mapRunDataDto.Checkpoints
-                            let checkpointParams = new
-                            {
-                                MapTimeId = insertedMapTimeId,
-                                cp.Value.CP,
-                                cp.Value.RunTime,
-                                cp.Value.StartVelX,
-                                cp.Value.StartVelY,
-                                cp.Value.StartVelZ,
-                                cp.Value.EndVelX,
-                                cp.Value.EndVelY,
-                                cp.Value.EndVelZ,
-                                cp.Value.Attempts,
-                                cp.Value.EndTouch
-                            }
-                            select checkpointParams)
+                                                         let checkpointParams = new
+                                                         {
+                                                             MapTimeId = insertedMapTimeId,
+                                                             cp.Value.CP,
+                                                             cp.Value.RunTime,
+                                                             cp.Value.StartVelX,
+                                                             cp.Value.StartVelY,
+                                                             cp.Value.StartVelZ,
+                                                             cp.Value.EndVelX,
+                                                             cp.Value.EndVelY,
+                                                             cp.Value.EndVelZ,
+                                                             cp.Value.Attempts,
+                                                             cp.Value.EndTouch
+                                                         }
+                                                         select checkpointParams)
                         {
                             checkpointCount += await conn.ExecuteAsync(
                                 Queries.DB_QUERY_CR_INSERT_CP,
@@ -91,7 +92,7 @@ namespace CS2_Surf_NET_API.Controllers
                 });
 
                 // All good
-                return CreatedAtAction(nameof(InsertMapTime), new { id = insertedMapTimeId }, new PostResponseDto
+                return CreatedAtAction(nameof(InsertMapTime), new { id = insertedMapTimeId }, new PostResponseEntity
                 {
                     Id = (int)insertedMapTimeId,
                     Inserted = checkpointCount > 0 ? checkpointCount + 1 : 1,
@@ -105,11 +106,11 @@ namespace CS2_Surf_NET_API.Controllers
             }
         }
 
-        [ProducesResponseType(typeof(PostResponseDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(PostResponseEntity), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpPut("updateMapTime/mapTimeId={mapTimeId:int}")]
         [EndpointSummary("Update an existing MapTime entry")]
-        public async Task<ActionResult<PostResponseDto>> UpdateMapTime([FromBody] MapTimeRunDataDto mapRunDataDto, int mapTimeId)
+        public async Task<ActionResult<PostResponseEntity>> UpdateMapTime([FromBody] MapTimeRunDataDto mapRunDataDto, int mapTimeId)
         {
             var runDate = (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
@@ -143,21 +144,21 @@ namespace CS2_Surf_NET_API.Controllers
                     {
                         Console.WriteLine($"Moving onto updating {mapRunDataDto.Checkpoints.Count} checkpoints");
                         foreach (var checkpointParams in from cp in mapRunDataDto.Checkpoints
-                            let checkpointParams = new
-                            {
-                                MapTimeId = mapTimeId,
-                                cp.Value.CP,
-                                cp.Value.RunTime,
-                                cp.Value.StartVelX,
-                                cp.Value.StartVelY,
-                                cp.Value.StartVelZ,
-                                cp.Value.EndVelX,
-                                cp.Value.EndVelY,
-                                cp.Value.EndVelZ,
-                                cp.Value.Attempts,
-                                cp.Value.EndTouch
-                            }
-                            select checkpointParams)
+                                                         let checkpointParams = new
+                                                         {
+                                                             MapTimeId = mapTimeId,
+                                                             cp.Value.CP,
+                                                             cp.Value.RunTime,
+                                                             cp.Value.StartVelX,
+                                                             cp.Value.StartVelY,
+                                                             cp.Value.StartVelZ,
+                                                             cp.Value.EndVelX,
+                                                             cp.Value.EndVelY,
+                                                             cp.Value.EndVelZ,
+                                                             cp.Value.Attempts,
+                                                             cp.Value.EndTouch
+                                                         }
+                                                         select checkpointParams)
                         {
                             checkpointCount += await conn.ExecuteAsync(
                                 Queries.DB_QUERY_CR_INSERT_CP,
@@ -169,7 +170,7 @@ namespace CS2_Surf_NET_API.Controllers
                 });
 
                 // All good
-                return CreatedAtAction(nameof(UpdateMapTime), new { id = mapTimeId }, new PostResponseDto
+                return CreatedAtAction(nameof(UpdateMapTime), new { id = mapTimeId }, new PostResponseEntity
                 {
                     Id = mapTimeId,
                     Inserted = checkpointCount > 0 ? checkpointCount + 1 : 1,

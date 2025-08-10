@@ -1,9 +1,9 @@
-﻿using CS2_Surf_NET_API.Data;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using SurfTimer.Api.Data;
 using SurfTimer.Shared.Entities;
 using SurfTimer.Shared.Sql;
 
-namespace CS2_Surf_NET_API.Controllers
+namespace SurfTimer.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -18,16 +18,16 @@ namespace CS2_Surf_NET_API.Controllers
             _db = db;
         }
 
-        [ProducesResponseType(typeof(Dictionary<int, Checkpoint>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Dictionary<int, CheckpointEntity>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet("checkpoints/mapTimeId={mapTimeId:int}")]
         [EndpointSummary("Get all Checkpoints data for a specific MapTimeID")]
-        public async Task<ActionResult<Dictionary<int, Checkpoint>>> GetMapRunCheckpoints(int mapTimeId)
+        public async Task<ActionResult<Dictionary<int, CheckpointEntity>>> GetMapRunCheckpoints(int mapTimeId)
         {
             try
             {
-                var checkpoints = await _db.QueryAsync<Checkpoint>(
+                var checkpoints = await _db.QueryAsync<CheckpointEntity>(
                     Queries.DB_QUERY_PB_GET_CPS,
                     new { mapTimeId }
                 );
@@ -50,16 +50,16 @@ namespace CS2_Surf_NET_API.Controllers
             }
         }
 
-        [ProducesResponseType(typeof(List<MapTimeRunData>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(List<MapTimeRunDataEntity>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet("playerId={playerId:int}&mapId={mapId:int}&type={type:int}&style={style:int}")]
         [EndpointSummary("Get all runs for the PlayerID, MapID, Type and Style combination")]
-        public async Task<ActionResult<List<MapTimeRunData>>> GetMapRunsByPlayer(int playerId, int mapId, int type, int style)
+        public async Task<ActionResult<List<MapTimeRunDataEntity>>> GetMapRunsByPlayer(int playerId, int mapId, int type, int style)
         {
             try
             {
-                var mapRuns = await _db.QueryAsync<MapTimeRunData>(
+                var mapRuns = await _db.QueryAsync<MapTimeRunDataEntity>(
                     Queries.DB_QUERY_PB_GET_TYPE_RUNTIME,
                     new { playerId, mapId, type, style }
                 );
@@ -80,16 +80,16 @@ namespace CS2_Surf_NET_API.Controllers
             }
         }
 
-        [ProducesResponseType(typeof(MapTimeRunData), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(MapTimeRunDataEntity), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet("runById/mapTimeId={mapTimeId:int}")]
         [EndpointSummary("Get a specific MapTime by it's ID")]
-        public async Task<ActionResult<List<MapTimeRunData>>> GetMapRunById(int mapTimeId)
+        public async Task<ActionResult<List<MapTimeRunDataEntity>>> GetMapRunById(int mapTimeId)
         {
             try
             {
-                var mapRun = await _db.QueryFirstOrDefaultAsync<MapTimeRunData>(
+                var mapRun = await _db.QueryFirstOrDefaultAsync<MapTimeRunDataEntity>(
                     Queries.DB_QUERY_PB_GET_SPECIFIC_MAPTIME_DATA,
                     new { mapTimeId }
                 );

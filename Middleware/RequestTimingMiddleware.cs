@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace CS2_Surf_NET_API.Middleware
+namespace SurfTimer.Api.Middleware
 {
     public class RequestTimingMiddleware
     {

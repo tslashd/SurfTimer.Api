@@ -1,9 +1,9 @@
-﻿using CS2_Surf_NET_API.Data;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using SurfTimer.Api.Data;
 using SurfTimer.Shared.Entities;
 using SurfTimer.Shared.Sql;
 
-namespace CS2_Surf_NET_API.Controllers
+namespace SurfTimer.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -18,16 +18,16 @@ namespace CS2_Surf_NET_API.Controllers
             _db = db;
         }
 
-        [ProducesResponseType(typeof(List<PlayerStatsRunData>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(List<MapTimeRunDataEntity>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet("playerId={playerId:int}&mapId={mapId:int}")]
         [EndpointSummary("All data for the player runs on a map.")]
-        public async Task<ActionResult<List<MapTimeRunData>>> GetPlayerMapTimes(int playerId, int mapId)
+        public async Task<ActionResult<List<MapTimeRunDataEntity>>> GetPlayerMapTimes(int playerId, int mapId)
         {
             try
             {
-                var mapRuns = await _db.QueryAsync<PlayerStatsRunData>(
+                var mapRuns = await _db.QueryAsync<MapTimeRunDataEntity>(
                     Queries.DB_QUERY_PS_GET_ALL_RUNTIMES,
                     new { playerId, mapId }
                 );

@@ -1,10 +1,10 @@
-using CS2_Surf_NET_API.Data;
-using CS2_Surf_NET_API.Middleware;
-using CS2_Surf_NET_API.Shared.JsonConverters;
-using CS2_Surf_NET_API.Shared.TypeHandlers;
 using Dapper;
 using Microsoft.OpenApi.Models;
 using MySqlConnector;
+using SurfTimer.Api.Data;
+using SurfTimer.Api.Middleware;
+using SurfTimer.Api.Shared.TypeHandlers;
+using SurfTimer.Shared.JsonConverters;
 using System.Reflection;
 
 Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;

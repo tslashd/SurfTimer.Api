@@ -1,6 +1,6 @@
 ﻿using System.Data;
 
-namespace CS2_Surf_NET_API.Data
+namespace SurfTimer.Api.Data
 {
     public interface IDatabaseService
     {

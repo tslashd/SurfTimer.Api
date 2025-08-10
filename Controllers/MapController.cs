@@ -1,10 +1,10 @@
-﻿using CS2_Surf_NET_API.Data;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using SurfTimer.Api.Data;
 using SurfTimer.Shared.DTO;
 using SurfTimer.Shared.Entities;
 using SurfTimer.Shared.Sql;
 
-namespace CS2_Surf_NET_API.Controllers
+namespace SurfTimer.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -19,16 +19,16 @@ namespace CS2_Surf_NET_API.Controllers
             _db = db;
         }
 
-        [ProducesResponseType(typeof(Map), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(MapEntity), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet("mapName={mapName}")]
         [EndpointSummary("Get the information about the Map. ID, Tier, etc.")]
-        public async Task<ActionResult<Map>> GetMapInfo(string mapName)
+        public async Task<ActionResult<MapEntity>> GetMapInfo(string mapName)
         {
             try
             {
-                var mapInfo = await _db.QueryFirstOrDefaultAsync<Map>(
+                var mapInfo = await _db.QueryFirstOrDefaultAsync<MapEntity>(
                     Queries.DB_QUERY_MAP_GET_INFO,
                     new { mapName }
                 );
@@ -49,11 +49,11 @@ namespace CS2_Surf_NET_API.Controllers
             }
         }
 
-        [ProducesResponseType(typeof(PostResponseDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(PostResponseEntity), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpPost]
         [EndpointSummary("Add a new Map entry")]
-        public async Task<ActionResult<PostResponseDto>> InsertMapInfo([FromBody] MapDto mapDto)
+        public async Task<ActionResult<PostResponseEntity>> InsertMapInfo([FromBody] MapDto mapDto)
         {
             // Matching named parameters in SQL
             var sqlParameters = new
@@ -71,7 +71,7 @@ namespace CS2_Surf_NET_API.Controllers
             try
             {
                 var insertedId = await _db.ExecuteAsync(Queries.DB_QUERY_MAP_INSERT_INFO, sqlParameters);
-                return CreatedAtAction(nameof(InsertMapInfo), new { id = insertedId }, new PostResponseDto { Id = (int)insertedId });
+                return CreatedAtAction(nameof(InsertMapInfo), new { id = insertedId }, new PostResponseEntity { Id = (int)insertedId });
             }
             catch (Exception ex)
             {
@@ -79,11 +79,11 @@ namespace CS2_Surf_NET_API.Controllers
             }
         }
 
-        [ProducesResponseType(typeof(PostResponseDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(PostResponseEntity), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpPut("mapId={id=int}")]
         [EndpointSummary("Update the information about the Map. Tier, Stages, Bonuses, etc.")]
-        public async Task<ActionResult<PostResponseDto>> UpdateMapInfo([FromBody] MapDto mapDto, int id)
+        public async Task<ActionResult<PostResponseEntity>> UpdateMapInfo([FromBody] MapDto mapDto, int id)
         {
             // Matching named parameters in SQL
             var sqlParameters = new
@@ -100,7 +100,7 @@ namespace CS2_Surf_NET_API.Controllers
             try
             {
                 var updatedId = await _db.ExecuteAsync(Queries.DB_QUERY_MAP_UPDATE_INFO_FULL, sqlParameters);
-                return CreatedAtAction(nameof(UpdateMapInfo), new { id = updatedId }, new PostResponseDto { Id = (int)updatedId });
+                return CreatedAtAction(nameof(UpdateMapInfo), new { id = updatedId }, new PostResponseEntity { Id = (int)updatedId });
             }
             catch (Exception ex)
             {
@@ -108,16 +108,16 @@ namespace CS2_Surf_NET_API.Controllers
             }
         }
 
-        [ProducesResponseType(typeof(MapTimeRunData), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(MapTimeRunDataEntity), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet("mapId={id:int}")]
         [EndpointSummary("Get all runs for the specified MapID")]
-        public async Task<ActionResult<MapTimeRunData>> GetMapRuns(int id)
+        public async Task<ActionResult<MapTimeRunDataEntity>> GetMapRuns(int id)
         {
             try
             {
-                var mapRuns = await _db.QueryAsync<MapTimeRunData>(
+                var mapRuns = await _db.QueryAsync<MapTimeRunDataEntity>(
                     Queries.DB_QUERY_MAP_GET_RECORD_RUNS_AND_COUNT,
                     new { id }
                 );

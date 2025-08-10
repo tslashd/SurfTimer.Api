@@ -1,25 +1,22 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>SurfTimer.Api</RootNamespace>
-    <UserSecretsId>d9e4afdd-8c6b-4147-95aa-f512b6ad1282</UserSecretsId>
-    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <DockerfileContext>.</DockerfileContext>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<RootNamespace>SurfTimer.Api</RootNamespace>
+		<UserSecretsId>d9e4afdd-8c6b-4147-95aa-f512b6ad1282</UserSecretsId>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<DockerfileContext>.</DockerfileContext>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.1.66" />
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
-    <PackageReference Include="MySqlConnector" Version="2.4.0" />
-    <PackageReference Include="MySqlConnector.DependencyInjection" Version="2.4.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\SurfTimer.Shared\SurfTimer.Shared.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Dapper" Version="2.1.66" />
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
+		<PackageReference Include="MySqlConnector" Version="2.4.0" />
+		<PackageReference Include="MySqlConnector.DependencyInjection" Version="2.4.0" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.3" />
+		<ProjectReference Include="..\SurfTimer.Shared\SurfTimer.Shared.csproj" />
+	</ItemGroup>
 
 </Project>
