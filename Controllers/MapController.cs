@@ -20,7 +20,7 @@ namespace SurfTimer.Api.Controllers
         }
 
         [ProducesResponseType(typeof(MapEntity), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet("mapName={mapName}")]
         [EndpointSummary("Get the information about the Map. ID, Tier, etc.")]
@@ -35,7 +35,7 @@ namespace SurfTimer.Api.Controllers
 
                 if (mapInfo is null)
                 {
-                    return NotFound();
+                    return NoContent();
                 }
 
                 _logger.LogInformation("Retrieved Map Info for {MapName} with ID {ID}", mapName, mapInfo.ID);
@@ -44,7 +44,7 @@ namespace SurfTimer.Api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching Map Info for '{MapName}' profile.", mapName);
+                _logger.LogError(ex, "Error fetching Map Info for '{MapName}'.", mapName);
                 return StatusCode(500, "Internal server error");
             }
         }
@@ -109,7 +109,7 @@ namespace SurfTimer.Api.Controllers
         }
 
         [ProducesResponseType(typeof(MapTimeRunDataEntity), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet("mapId={id:int}")]
         [EndpointSummary("Get all runs for the specified MapID")]
@@ -124,7 +124,7 @@ namespace SurfTimer.Api.Controllers
 
                 if (mapRuns is null)
                 {
-                    return NotFound();
+                    return NoContent();
                 }
 
                 //foreach (var run in mapRuns)
@@ -140,7 +140,7 @@ namespace SurfTimer.Api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching Map Runs for Map ID '{ID}' profile.", id);
+                _logger.LogError(ex, "Error fetching Map Runs for Map ID '{ID}'.", id);
                 return StatusCode(500, "Internal server error");
             }
         }

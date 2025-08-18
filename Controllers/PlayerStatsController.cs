@@ -19,7 +19,7 @@ namespace SurfTimer.Api.Controllers
         }
 
         [ProducesResponseType(typeof(List<MapTimeRunDataEntity>), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet("playerId={playerId:int}&mapId={mapId:int}")]
         [EndpointSummary("All data for the player runs on a map.")]
@@ -34,7 +34,7 @@ namespace SurfTimer.Api.Controllers
 
                 if (mapRuns is null)
                 {
-                    return NotFound();
+                    return NoContent();
                 }
 
                 _logger.LogInformation("Retrieved MapTimes for PlayerID '{PlayerId}' and MapID '{MapId}'", playerId, mapId);

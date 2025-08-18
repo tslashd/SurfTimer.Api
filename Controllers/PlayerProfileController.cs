@@ -40,7 +40,7 @@ namespace SurfTimer.Api.Controllers
         }
 
         [ProducesResponseType(typeof(PlayerProfileEntity), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet("steamId={SteamID:long}")]
         [EndpointSummary("Get the Player profile data for a specific SteamID")]
@@ -53,7 +53,7 @@ namespace SurfTimer.Api.Controllers
                     Queries.DB_QUERY_PP_GET_PROFILE,
                     new { SteamID }
                 );
-                return player is not null ? Ok(player) : NotFound();
+                return player is not null ? Ok(player) : NoContent();
             }
             catch (Exception ex)
             {
@@ -117,7 +117,7 @@ namespace SurfTimer.Api.Controllers
         }
 
         [ProducesResponseType(typeof(PostResponseEntity), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpDelete("playerId={id:int}")]
         [EndpointSummary("Delete the profile of a specific Player ID")]
@@ -136,7 +136,7 @@ namespace SurfTimer.Api.Controllers
                 }
                 else
                 {
-                    return NotFound(new { message = $"Player profile with ID {id} not found." });
+                    return NoContent();
                 }
             }
             catch (Exception ex)

@@ -19,7 +19,7 @@ namespace SurfTimer.Api.Controllers
         }
 
         [ProducesResponseType(typeof(Dictionary<int, CheckpointEntity>), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet("checkpoints/mapTimeId={mapTimeId:int}")]
         [EndpointSummary("Get all Checkpoints data for a specific MapTimeID")]
@@ -34,7 +34,7 @@ namespace SurfTimer.Api.Controllers
 
                 if (checkpoints is null)
                 {
-                    return NotFound();
+                    return NoContent();
                 }
 
                 _logger.LogInformation("Retrieved Checkpoints for MapTimeID {ID}", mapTimeId);
@@ -51,7 +51,7 @@ namespace SurfTimer.Api.Controllers
         }
 
         [ProducesResponseType(typeof(List<MapTimeRunDataEntity>), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet("playerId={playerId:int}&mapId={mapId:int}&type={type:int}&style={style:int}")]
         [EndpointSummary("Get all runs for the PlayerID, MapID, Type and Style combination")]
@@ -66,7 +66,7 @@ namespace SurfTimer.Api.Controllers
 
                 if (mapRuns is null)
                 {
-                    return NotFound();
+                    return NoContent();
                 }
 
                 _logger.LogInformation("Retrieved all MapTimes data ({RunsCount}) for PlayerID {PlayerID}, MapID {MapID}, Type {Type} and Style {Style}", mapRuns.Count(), playerId, mapId, type, style);
@@ -81,7 +81,7 @@ namespace SurfTimer.Api.Controllers
         }
 
         [ProducesResponseType(typeof(MapTimeRunDataEntity), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet("runById/mapTimeId={mapTimeId:int}")]
         [EndpointSummary("Get a specific MapTime by it's ID")]
@@ -96,7 +96,7 @@ namespace SurfTimer.Api.Controllers
 
                 if (mapRun is null)
                 {
-                    return NotFound();
+                    return NoContent();
                 }
 
                 _logger.LogInformation("Retrieved MapTime data for RunID {RunID}", mapTimeId);
