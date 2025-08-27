@@ -11,6 +11,10 @@ on:
         required: true
         default: "v0.0.0"
 
+permissions:
+  contents: write   # required to create and upload releases
+
+
 jobs:
   build:
     runs-on: ubuntu-latest
