@@ -3,30 +3,54 @@ name: Release API (linux-x64 & win-x64)
 on:
   push:
     tags:
-      - "v*.*.*"            # executes for tags v1.2.3
-  workflow_dispatch: {}
+      - "v*.*.*"          # trigger automatically for tags like v1.2.3
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to release (e.g., v1.2.3)"
+        required: true
+        default: "v0.0.0"
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         rid: [ linux-x64, win-x64 ]
 
     steps:
-      - name: Checkout API repo into subfolder
+      - name: Resolve release tag
+        id: vars
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ github.event.inputs.tag }}"
+          else
+            TAG="${{ github.ref_name }}"
+          fi
+
+          if ! echo "$TAG" | grep -Eq '^v[0-9]'; then
+            echo "Tag must start with 'v' (e.g., v1.2.3). Got: $TAG"
+            exit 1
+          fi
+
+          echo "RELEASE_TAG=$TAG" >> $GITHUB_ENV
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Checkout API repository
         uses: actions/checkout@v4
         with:
           path: SurfTimer.Api
+          ref: ${{ env.RELEASE_TAG }}
 
-      - name: Checkout Shared repo (sibling)
+      - name: Checkout Shared repository
         uses: actions/checkout@v4
         with:
           repository: tslashd/SurfTimer.Shared
           path: SurfTimer.Shared
-          # if SurfTimer.Shared is private:
+          # If SurfTimer.Shared is private:
           # token: ${{ secrets.SHARED_REPO_PAT }}
+          # Optionally pin a version/tag:
+          # ref: v1.2.3
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -39,7 +63,6 @@ jobs:
       - name: Build
         run: dotnet build SurfTimer.Api/SurfTimer.Api.sln -c Release --no-restore
 
-      # Framework-dependent publish: .dll files.
       - name: Publish (${{ matrix.rid }})
         env:
           OUT_DIR: out/${{ matrix.rid }}
@@ -55,7 +78,6 @@ jobs:
           echo "Listing publish output:"
           ls -la "$OUT_DIR"
 
-      # Validation: have both DLLs present
       - name: Validate DLLs (${{ matrix.rid }})
         env:
           OUT_DIR: out/${{ matrix.rid }}
@@ -66,20 +88,19 @@ jobs:
       - name: Package ZIP (${{ matrix.rid }})
         env:
           OUT_DIR: out/${{ matrix.rid }}
-          TAG: ${{ github.ref_name }}
         run: |
           cd "$OUT_DIR"
-          zip -r "../../SurfTimer.Api-${TAG}-${{ matrix.rid }}.zip" .
+          zip -r "../../SurfTimer.Api-${RELEASE_TAG}-${{ matrix.rid }}.zip" .
           cd - >/dev/null
-          sha256sum "SurfTimer.Api-${TAG}-${{ matrix.rid }}.zip" > "SurfTimer.Api-${TAG}-${{ matrix.rid }}.zip.sha256"
+          sha256sum "SurfTimer.Api-${RELEASE_TAG}-${{ matrix.rid }}.zip" > "SurfTimer.Api-${RELEASE_TAG}-${{ matrix.rid }}.zip.sha256"
 
       - name: Upload artifact (${{ matrix.rid }})
         uses: actions/upload-artifact@v4
         with:
-          name: SurfTimer.Api-${{ github.ref_name }}-${{ matrix.rid }}
+          name: SurfTimer.Api-${{ env.RELEASE_TAG }}-${{ matrix.rid }}
           path: |
-            SurfTimer.Api-${{ github.ref_name }}-${{ matrix.rid }}.zip
-            SurfTimer.Api-${{ github.ref_name }}-${{ matrix.rid }}.zip.sha256
+            SurfTimer.Api-${{ env.RELEASE_TAG }}-${{ matrix.rid }}.zip
+            SurfTimer.Api-${{ env.RELEASE_TAG }}-${{ matrix.rid }}.zip.sha256
 
   release:
     runs-on: ubuntu-latest
@@ -91,20 +112,31 @@ jobs:
         with:
           path: ./artifacts
 
+      - name: Determine tag
+        id: vars
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ github.event.inputs.tag }}"
+          else
+            TAG="${{ github.ref_name }}"
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "RELEASE_TAG=$TAG" >> $GITHUB_ENV
+
       - name: List artifacts
         run: ls -R ./artifacts
 
       - name: Create GitHub Release and upload assets
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}
-          name: SurfTimer.Api ${{ github.ref_name }}
+          tag_name: ${{ steps.vars.outputs.tag }}
+          name: SurfTimer.Api ${{ steps.vars.outputs.tag }}
           draft: false
-          prerelease: ${{ contains(github.ref_name, '-rc') || contains(github.ref_name, '-beta') || contains(github.ref_name, '-alpha') }}
+          prerelease: ${{ contains(steps.vars.outputs.tag, '-rc') || contains(steps.vars.outputs.tag, '-beta') || contains(steps.vars.outputs.tag, '-alpha') }}
           files: |
-            artifacts/SurfTimer.Api-${{ github.ref_name }}-linux-x64/SurfTimer.Api-${{ github.ref_name }}-linux-x64.zip
-            artifacts/SurfTimer.Api-${{ github.ref_name }}-linux-x64/SurfTimer.Api-${{ github.ref_name }}-linux-x64.zip.sha256
-            artifacts/SurfTimer.Api-${{ github.ref_name }}-win-x64/SurfTimer.Api-${{ github.ref_name }}-win-x64.zip
-            artifacts/SurfTimer.Api-${{ github.ref_name }}-win-x64/SurfTimer.Api-${{ github.ref_name }}-win-x64.zip.sha256
+            artifacts/SurfTimer.Api-${{ env.RELEASE_TAG }}-linux-x64/SurfTimer.Api-${{ env.RELEASE_TAG }}-linux-x64.zip
+            artifacts/SurfTimer.Api-${{ env.RELEASE_TAG }}-linux-x64/SurfTimer.Api-${{ env.RELEASE_TAG }}-linux-x64.zip.sha256
+            artifacts/SurfTimer.Api-${{ env.RELEASE_TAG }}-win-x64/SurfTimer.Api-${{ env.RELEASE_TAG }}-win-x64.zip
+            artifacts/SurfTimer.Api-${{ env.RELEASE_TAG }}-win-x64/SurfTimer.Api-${{ env.RELEASE_TAG }}-win-x64.zip.sha256
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
