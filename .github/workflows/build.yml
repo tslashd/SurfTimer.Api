@@ -5,32 +5,35 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout API repo
+      - name: Checkout API repo into subfolder
         uses: actions/checkout@v4
+        with:
+          path: SurfTimer.Api
 
-      - name: Checkout Shared repo
+      - name: Checkout Shared repo (sibling folder)
         uses: actions/checkout@v4
         with:
           repository: tslashd/SurfTimer.Shared
-          path: ../SurfTimer.Shared   # ще се появи една папка нагоре спрямо SurfTimer.Api
+          path: SurfTimer.Shared
+          # if SurfTimer.Shared is private, provide PAT:
+          # token: ${{ secrets.SHARED_REPO_PAT }}
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
 
-      - name: Restore dependencies
-        run: dotnet restore SurfTimer.Api.sln
+      - name: Restore
+        run: dotnet restore SurfTimer.Api/SurfTimer.Api.sln
 
       - name: Build
-        run: dotnet build SurfTimer.Api.sln -c Release --no-restore
+        run: dotnet build SurfTimer.Api/SurfTimer.Api.sln -c Release --no-restore
 
       - name: Publish
         run: dotnet publish SurfTimer.Api/SurfTimer.Api.csproj -c Release -o out
