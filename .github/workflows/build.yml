@@ -1,10 +1,10 @@
-name: Build SurfTimer.Api Clean
+name: Build API
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
   pull_request:
+    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
@@ -12,33 +12,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout SurfTimer.Api
-      - name: Checkout SurfTimer.Api
-        uses: actions/checkout@v3
+      - name: Checkout API repo
+        uses: actions/checkout@v4
 
-      # 2️⃣ Checkout SurfTimer.Shared
-      #- name: Checkout SurfTimer.Shared
-      #  uses: actions/checkout@v3
-      #  with:
-      #    repository: tslashd/SurfTimer.Shared
-      #    path: SurfTimer.Shared
+      - name: Checkout Shared repo
+        uses: actions/checkout@v4
+        with:
+          repository: tslashd/SurfTimer.Shared
+          path: ../SurfTimer.Shared   # ще се появи една папка нагоре спрямо SurfTimer.Api
 
-      # 3️⃣ Setup .NET
-      - name: Setup .NET 8
-        uses: actions/setup-dotnet@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
 
-      # 4️⃣ Add SurfTimer.Shared as a temporary reference
-      #- name: Add project reference dynamically
-      #  run: |
-      #    dotnet sln add SurfTimer.Shared/SurfTimer.Shared.csproj
-      #    dotnet add SurfTimer.Api.csproj reference SurfTimer.Shared/SurfTimer.Shared.csproj
-
-      # 5️⃣ Restore dependencies
       - name: Restore dependencies
-        run: dotnet restore SurfTimer.Api.csproj
+        run: dotnet restore SurfTimer.Api.sln
 
-      # 6️⃣ Build API
-      - name: Build API
-        run: dotnet build SurfTimer.Api.csproj -c Release
+      - name: Build
+        run: dotnet build SurfTimer.Api.sln -c Release --no-restore
+
+      - name: Publish
+        run: dotnet publish SurfTimer.Api/SurfTimer.Api.csproj -c Release -o out
