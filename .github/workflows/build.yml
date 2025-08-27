@@ -12,27 +12,33 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout SurfTimer.Api
       - name: Checkout SurfTimer.Api
         uses: actions/checkout@v3
 
+      # 2️⃣ Checkout SurfTimer.Shared
       - name: Checkout SurfTimer.Shared
         uses: actions/checkout@v3
         with:
           repository: tslashd/SurfTimer.Shared
           path: SurfTimer.Shared
 
+      # 3️⃣ Setup .NET
       - name: Setup .NET 8
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 8.0.x
 
+      # 4️⃣ Add SurfTimer.Shared as a temporary reference
       - name: Add project reference dynamically
         run: |
           dotnet sln add SurfTimer.Shared/SurfTimer.Shared.csproj
-          dotnet add SurfTimer.Api/SurfTimer.Api.csproj reference SurfTimer.Shared/SurfTimer.Shared.csproj
+          dotnet add SurfTimer.Api.csproj reference SurfTimer.Shared/SurfTimer.Shared.csproj
 
+      # 5️⃣ Restore dependencies
       - name: Restore dependencies
-        run: dotnet restore SurfTimer.Api/SurfTimer.Api.csproj
+        run: dotnet restore SurfTimer.Api.csproj
 
+      # 6️⃣ Build API
       - name: Build API
-        run: dotnet build SurfTimer.Api/SurfTimer.Api.csproj -c Release
+        run: dotnet build SurfTimer.Api.csproj -c Release
