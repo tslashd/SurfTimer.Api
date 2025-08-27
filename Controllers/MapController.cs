@@ -38,7 +38,11 @@ namespace SurfTimer.Api.Controllers
                     return NoContent();
                 }
 
-                _logger.LogInformation("Retrieved Map Info for {MapName} with ID {ID}", mapName, mapInfo.ID);
+                _logger.LogInformation(
+                    "Retrieved Map Info for {MapName} with ID {ID}",
+                    mapName,
+                    mapInfo.ID
+                );
 
                 return Ok(mapInfo);
             }
@@ -65,13 +69,20 @@ namespace SurfTimer.Api.Controllers
                 mapDto.Bonuses,
                 mapDto.Ranked,
                 DateAdded = (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
-                LastPlayed = (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                LastPlayed = (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
             };
 
             try
             {
-                var insertedId = await _db.ExecuteAsync(Queries.DB_QUERY_MAP_INSERT_INFO, sqlParameters);
-                return CreatedAtAction(nameof(InsertMapInfo), new { id = insertedId }, new PostResponseEntity { Id = (int)insertedId });
+                var insertedId = await _db.ExecuteAsync(
+                    Queries.DB_QUERY_MAP_INSERT_INFO,
+                    sqlParameters
+                );
+                return CreatedAtAction(
+                    nameof(InsertMapInfo),
+                    new { id = insertedId },
+                    new PostResponseEntity { Id = (int)insertedId }
+                );
             }
             catch (Exception ex)
             {
@@ -83,7 +94,10 @@ namespace SurfTimer.Api.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpPut("mapId={id=int}")]
         [EndpointSummary("Update the information about the Map. Tier, Stages, Bonuses, etc.")]
-        public async Task<ActionResult<PostResponseEntity>> UpdateMapInfo([FromBody] MapDto mapDto, int id)
+        public async Task<ActionResult<PostResponseEntity>> UpdateMapInfo(
+            [FromBody] MapDto mapDto,
+            int id
+        )
         {
             // Matching named parameters in SQL
             var sqlParameters = new
@@ -94,13 +108,20 @@ namespace SurfTimer.Api.Controllers
                 mapDto.Author,
                 mapDto.Tier,
                 mapDto.Ranked,
-                id
+                id,
             };
 
             try
             {
-                var updatedId = await _db.ExecuteAsync(Queries.DB_QUERY_MAP_UPDATE_INFO_FULL, sqlParameters);
-                return CreatedAtAction(nameof(UpdateMapInfo), new { id = updatedId }, new PostResponseEntity { Id = (int)updatedId });
+                var updatedId = await _db.ExecuteAsync(
+                    Queries.DB_QUERY_MAP_UPDATE_INFO_FULL,
+                    sqlParameters
+                );
+                return CreatedAtAction(
+                    nameof(UpdateMapInfo),
+                    new { id = updatedId },
+                    new PostResponseEntity { Id = (int)updatedId }
+                );
             }
             catch (Exception ex)
             {
@@ -133,8 +154,11 @@ namespace SurfTimer.Api.Controllers
                 //    //run.ReplayFramesBase64 = Convert.ToBase64String(run.ReplayFrames!);
                 //}
 
-
-                _logger.LogInformation("Retrieved all Map Runs for Map ID {ID}. Total {Total}", id, mapRuns.Count());
+                _logger.LogInformation(
+                    "Retrieved all Map Runs for Map ID {ID}. Total {Total}",
+                    id,
+                    mapRuns.Count()
+                );
 
                 return Ok(mapRuns);
             }

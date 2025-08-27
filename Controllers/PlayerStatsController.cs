@@ -23,7 +23,10 @@ namespace SurfTimer.Api.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet("playerId={playerId:int}&mapId={mapId:int}")]
         [EndpointSummary("All data for the player runs on a map.")]
-        public async Task<ActionResult<List<MapTimeRunDataEntity>>> GetPlayerMapTimes(int playerId, int mapId)
+        public async Task<ActionResult<List<MapTimeRunDataEntity>>> GetPlayerMapTimes(
+            int playerId,
+            int mapId
+        )
         {
             try
             {
@@ -37,13 +40,22 @@ namespace SurfTimer.Api.Controllers
                     return NoContent();
                 }
 
-                _logger.LogInformation("Retrieved MapTimes for PlayerID '{PlayerId}' and MapID '{MapId}'", playerId, mapId);
+                _logger.LogInformation(
+                    "Retrieved MapTimes for PlayerID '{PlayerId}' and MapID '{MapId}'",
+                    playerId,
+                    mapId
+                );
 
                 return Ok(mapRuns);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching Runs for PlayerID = {PlayerID} and MapID = {MapID}", playerId, mapId);
+                _logger.LogError(
+                    ex,
+                    "Error fetching Runs for PlayerID = {PlayerID} and MapID = {MapID}",
+                    playerId,
+                    mapId
+                );
                 return StatusCode(500, "Internal server error");
             }
         }

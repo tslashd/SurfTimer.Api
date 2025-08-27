@@ -23,7 +23,7 @@ namespace SurfTimer.Api.Controllers
                 clientUnix,
                 serverUnix,
                 latencySeconds = latency,
-                latencyMs = Math.Round(latency * 1000, 2)
+                latencyMs = Math.Round(latency * 1000, 2),
             };
 
             return Ok(response);

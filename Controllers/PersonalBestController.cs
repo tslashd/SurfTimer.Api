@@ -23,7 +23,9 @@ namespace SurfTimer.Api.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet("checkpoints/mapTimeId={mapTimeId:int}")]
         [EndpointSummary("Get all Checkpoints data for a specific MapTimeID")]
-        public async Task<ActionResult<Dictionary<int, CheckpointEntity>>> GetMapRunCheckpoints(int mapTimeId)
+        public async Task<ActionResult<Dictionary<int, CheckpointEntity>>> GetMapRunCheckpoints(
+            int mapTimeId
+        )
         {
             try
             {
@@ -55,13 +57,24 @@ namespace SurfTimer.Api.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet("playerId={playerId:int}&mapId={mapId:int}&type={type:int}&style={style:int}")]
         [EndpointSummary("Get all runs for the PlayerID, MapID, Type and Style combination")]
-        public async Task<ActionResult<List<MapTimeRunDataEntity>>> GetMapRunsByPlayer(int playerId, int mapId, int type, int style)
+        public async Task<ActionResult<List<MapTimeRunDataEntity>>> GetMapRunsByPlayer(
+            int playerId,
+            int mapId,
+            int type,
+            int style
+        )
         {
             try
             {
                 var mapRuns = await _db.QueryAsync<MapTimeRunDataEntity>(
                     Queries.DB_QUERY_PB_GET_TYPE_RUNTIME,
-                    new { playerId, mapId, type, style }
+                    new
+                    {
+                        playerId,
+                        mapId,
+                        type,
+                        style,
+                    }
                 );
 
                 if (mapRuns is null)
@@ -69,13 +82,25 @@ namespace SurfTimer.Api.Controllers
                     return NoContent();
                 }
 
-                _logger.LogInformation("Retrieved all MapTimes data ({RunsCount}) for PlayerID {PlayerID}, MapID {MapID}, Type {Type} and Style {Style}", mapRuns.Count(), playerId, mapId, type, style);
+                _logger.LogInformation(
+                    "Retrieved all MapTimes data ({RunsCount}) for PlayerID {PlayerID}, MapID {MapID}, Type {Type} and Style {Style}",
+                    mapRuns.Count(),
+                    playerId,
+                    mapId,
+                    type,
+                    style
+                );
 
                 return Ok(mapRuns);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching Runs for PlayerID {PlayerID} and MapID {MapID}", playerId, mapId);
+                _logger.LogError(
+                    ex,
+                    "Error fetching Runs for PlayerID {PlayerID} and MapID {MapID}",
+                    playerId,
+                    mapId
+                );
                 return StatusCode(500, "Internal server error");
             }
         }

@@ -1,6 +1,6 @@
-﻿using Dapper;
+﻿using System.Data;
+using Dapper;
 using MySqlConnector;
-using System.Data;
 
 namespace SurfTimer.Api.Data
 {
@@ -17,7 +17,6 @@ namespace SurfTimer.Api.Data
         {
             await using var connection = await _dataSource.OpenConnectionAsync();
 
-
             ///var rows = await connection.QueryAsync(sql, parameters);
             ///foreach (var row in rows)
             ///{
@@ -27,7 +26,6 @@ namespace SurfTimer.Api.Data
             ///        Console.WriteLine($"{kvp.Key} = {kvp.Value}");
             ///    }
             ///}
-
             return await connection.QueryAsync<T>(sql, parameters);
         }
 
@@ -49,7 +47,10 @@ namespace SurfTimer.Api.Data
                 // Check if the last query was INSERT in order to return LAST_INSERT_ID()
                 if (sql.TrimStart().StartsWith("INSERT", StringComparison.OrdinalIgnoreCase))
                 {
-                    var insertedId = await connection.ExecuteScalarAsync<long>("SELECT LAST_INSERT_ID();", transaction: transaction);
+                    var insertedId = await connection.ExecuteScalarAsync<long>(
+                        "SELECT LAST_INSERT_ID();",
+                        transaction: transaction
+                    );
                     await transaction.CommitAsync();
                     return insertedId;
                 }

@@ -7,7 +7,10 @@ namespace SurfTimer.Api.Middleware
         private readonly RequestDelegate _next;
         private readonly ILogger<RequestTimingMiddleware> _logger;
 
-        public RequestTimingMiddleware(RequestDelegate next, ILogger<RequestTimingMiddleware> logger)
+        public RequestTimingMiddleware(
+            RequestDelegate next,
+            ILogger<RequestTimingMiddleware> logger
+        )
         {
             _next = next;
             _logger = logger;
@@ -19,7 +22,8 @@ namespace SurfTimer.Api.Middleware
             context.Response.OnStarting(() =>
             {
                 watch.Stop();
-                context.Response.Headers["X-Response-Time-ms"] = watch.ElapsedMilliseconds.ToString();
+                context.Response.Headers["X-Response-Time-ms"] =
+                    watch.ElapsedMilliseconds.ToString();
                 return Task.CompletedTask;
             });
 

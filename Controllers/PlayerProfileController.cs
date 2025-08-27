@@ -45,7 +45,6 @@ namespace SurfTimer.Api.Controllers
         [HttpGet("steamId={SteamID:long}")]
         [EndpointSummary("Get the Player profile data for a specific SteamID")]
         public async Task<ActionResult<PlayerProfileEntity>> GetProfile(ulong SteamID)
-
         {
             try
             {
@@ -66,7 +65,9 @@ namespace SurfTimer.Api.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpPost]
         [EndpointSummary("Add a new Player profile")]
-        public async Task<ActionResult<PostResponseEntity>> InsertProfile([FromBody] PlayerProfileDto profileDto)
+        public async Task<ActionResult<PostResponseEntity>> InsertProfile(
+            [FromBody] PlayerProfileDto profileDto
+        )
         {
             // Matching named parameters in SQL
             var sqlParameters = new
@@ -76,13 +77,20 @@ namespace SurfTimer.Api.Controllers
                 profileDto.Country,
                 JoinDate = (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
                 LastSeen = (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
-                profileDto.Connections
+                profileDto.Connections,
             };
 
             try
             {
-                var insertedId = await _db.ExecuteAsync(Queries.DB_QUERY_PP_INSERT_PROFILE, sqlParameters);
-                return CreatedAtAction(nameof(InsertProfile), new { id = insertedId }, new PostResponseEntity { Id = (int)insertedId });
+                var insertedId = await _db.ExecuteAsync(
+                    Queries.DB_QUERY_PP_INSERT_PROFILE,
+                    sqlParameters
+                );
+                return CreatedAtAction(
+                    nameof(InsertProfile),
+                    new { id = insertedId },
+                    new PostResponseEntity { Id = (int)insertedId }
+                );
             }
             catch (Exception ex)
             {
@@ -94,7 +102,10 @@ namespace SurfTimer.Api.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpPut("playerId={id:int}")]
         [EndpointSummary("Update the data of a specific Player profile")]
-        public async Task<ActionResult<PostResponseEntity>> UpdateProfile([FromBody] PlayerProfileDto profileDto, int id)
+        public async Task<ActionResult<PostResponseEntity>> UpdateProfile(
+            [FromBody] PlayerProfileDto profileDto,
+            int id
+        )
         {
             // Matching named parameters in SQL
             var sqlParameters = new
@@ -102,13 +113,20 @@ namespace SurfTimer.Api.Controllers
                 profileDto.Country,
                 LastSeen = (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
                 profileDto.Name,
-                id
+                id,
             };
 
             try
             {
-                var insertedId = await _db.ExecuteAsync(Queries.DB_QUERY_PP_UPDATE_PROFILE, sqlParameters);
-                return CreatedAtAction(nameof(InsertProfile), new { id = insertedId }, new PostResponseEntity { Id = (int)insertedId });
+                var insertedId = await _db.ExecuteAsync(
+                    Queries.DB_QUERY_PP_UPDATE_PROFILE,
+                    sqlParameters
+                );
+                return CreatedAtAction(
+                    nameof(InsertProfile),
+                    new { id = insertedId },
+                    new PostResponseEntity { Id = (int)insertedId }
+                );
             }
             catch (Exception ex)
             {
@@ -132,7 +150,9 @@ namespace SurfTimer.Api.Controllers
 
                 if (rowsAffected == 0)
                 {
-                    return Ok(new { message = $"Player profile with ID {id} deleted.", id = $"{id}" });
+                    return Ok(
+                        new { message = $"Player profile with ID {id} deleted.", id = $"{id}" }
+                    );
                 }
                 else
                 {
@@ -145,6 +165,5 @@ namespace SurfTimer.Api.Controllers
                 return StatusCode(500, new { error = "Internal server error" });
             }
         }
-
     }
 }

@@ -1,8 +1,8 @@
-﻿using SurfTimer.Shared.Types;
-using Dapper;
-using System.Data;
+﻿using System.Data;
 using System.Text;
 using System.Text.RegularExpressions;
+using Dapper;
+using SurfTimer.Shared.Types;
 
 namespace SurfTimer.Api.Shared.TypeHandlers
 {
@@ -32,9 +32,7 @@ namespace SurfTimer.Api.Shared.TypeHandlers
 
         public override void SetValue(IDbDataParameter parameter, ReplayFramesString? value)
         {
-            parameter.Value = value is null
-                ? DBNull.Value
-                : Convert.FromBase64String(value.Value);
+            parameter.Value = value is null ? DBNull.Value : Convert.FromBase64String(value.Value);
         }
 
         private static bool IsBase64String(string str)
