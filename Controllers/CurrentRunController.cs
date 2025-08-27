@@ -63,7 +63,7 @@ namespace SurfTimer.Api.Controllers
                             trx
                         );
 
-                        // Вземаме LAST_INSERT_ID() inside the SAME transaction
+                        // Get LAST_INSERT_ID() inside the SAME transaction
                         insertedMapTimeId = await conn.ExecuteScalarAsync<long>(
                             "SELECT LAST_INSERT_ID();",
                             transaction: trx
