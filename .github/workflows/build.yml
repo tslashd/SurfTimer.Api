@@ -5,36 +5,34 @@ on:
     branches:
       - main
   pull_request:
-  workflow_dispatch: # Allow manual run
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout SurfTimer.Api
       - name: Checkout SurfTimer.Api
         uses: actions/checkout@v3
 
-      # 2️⃣ Checkout SurfTimer.Shared
       - name: Checkout SurfTimer.Shared
         uses: actions/checkout@v3
         with:
           repository: tslashd/SurfTimer.Shared
           path: SurfTimer.Shared
 
-      # 3️⃣ Setup .NET
       - name: Setup .NET 8
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 8.0.x
 
-      # 4️⃣ Restore dependencies for SurfTimer.Api
+      - name: Add project reference dynamically
+        run: |
+          dotnet sln add SurfTimer.Shared/SurfTimer.Shared.csproj
+          dotnet add SurfTimer.Api/SurfTimer.Api.csproj reference SurfTimer.Shared/SurfTimer.Shared.csproj
+
       - name: Restore dependencies
         run: dotnet restore SurfTimer.Api/SurfTimer.Api.csproj
 
-      # 5️⃣ Build API along with SurfTimer.Shared
-      - name: Build API with Shared
-        run: |
-          dotnet build SurfTimer.Shared/SurfTimer.Shared.csproj -c Release
-          dotnet build SurfTimer.Api/SurfTimer.Api.csproj -c Release /p:ReferencePath=SurfTimer.Shared/bin/Release/net8.0
+      - name: Build API
+        run: dotnet build SurfTimer.Api/SurfTimer.Api.csproj -c Release
