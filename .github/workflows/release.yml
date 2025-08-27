@@ -1,0 +1,107 @@
+name: Release API (linux-x64 & win-x64)
+
+on:
+  push:
+    tags:
+      - "v*.*.*"         # executes for tags v1.2.3
+  workflow_dispatch: {} 
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        rid: [ linux-x64, win-x64 ]
+
+    env:
+      VERSION: ${{ github.ref_name }}  # ex. v1.2.3
+      OUT_DIR: out/${{ matrix.rid }}
+
+    steps:
+      - name: Checkout API repo into subfolder
+        uses: actions/checkout@v4
+        with:
+          path: SurfTimer.Api
+
+      - name: Checkout Shared repo (sibling)
+        uses: actions/checkout@v4
+        with:
+          repository: tslashd/SurfTimer.Shared
+          path: SurfTimer.Shared
+          # If `SurfTimer.Shared` is private, add PAT in secrets and remove comment:
+          # token: ${{ secrets.SHARED_REPO_PAT }}
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore SurfTimer.Api/SurfTimer.Api.sln
+
+      - name: Build
+        run: dotnet build SurfTimer.Api/SurfTimer.Api.sln -c Release --no-restore
+
+      # Framework-dependent publish (not self-contained, not single-file).
+      # This way in the publish directory we have *.dll, including SurfTimer.Api.dll and SurfTimer.Shared.dll
+      - name: Publish (${{ matrix.rid }})
+        run: |
+          dotnet publish SurfTimer.Api/SurfTimer.Api.csproj \
+            -c Release \
+            -o "$OUT_DIR" \
+            -r ${{ matrix.rid }} \
+            --self-contained false \
+            /p:PublishSingleFile=false \
+            /p:PublishTrimmed=false
+
+      # Validation: we want both DLL files to be present
+      - name: Validate DLLs present (${{ matrix.rid }})
+        run: |
+          ls -la "$OUT_DIR"
+          test -f "$OUT_DIR/SurfTimer.Api.dll" || (echo "Missing SurfTimer.Api.dll" && exit 1)
+          test -f "$OUT_DIR/SurfTimer.Shared.dll" || (echo "Missing SurfTimer.Shared.dll" && exit 1)
+
+      - name: Package ZIP (${{ matrix.rid }})
+        run: |
+          cd "$OUT_DIR"
+          zip -r "../../SurfTimer.Api-${{ env.VERSION }}-${{ matrix.rid }}.zip" .
+          cd - >/dev/null
+          shasum -a 256 "SurfTimer.Api-${{ env.VERSION }}-${{ matrix.rid }}.zip" > "SurfTimer.Api-${{ env.VERSION }}-${{ matrix.rid }}.zip.sha256"
+
+      - name: Upload artifact (${{ matrix.rid }})
+        uses: actions/upload-artifact@v4
+        with:
+          name: SurfTimer.Api-${{ env.VERSION }}-${{ matrix.rid }}
+          path: |
+            SurfTimer.Api-${{ env.VERSION }}-${{ matrix.rid }}.zip
+            SurfTimer.Api-${{ env.VERSION }}-${{ matrix.rid }}.zip.sha256
+
+  create-release:
+    runs-on: ubuntu-latest
+    needs: build-and-release
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: List downloaded artifacts
+        run: |
+          ls -R ./artifacts
+
+      - name: Create GitHub Release and upload assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: SurfTimer.Api ${{ github.ref_name }}
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-rc') || contains(github.ref_name, '-beta') || contains(github.ref_name, '-alpha') }}
+          files: |
+            artifacts/SurfTimer.Api-${{ github.ref_name }}-linux-x64/SurfTimer.Api-${{ github.ref_name }}-linux-x64.zip
+            artifacts/SurfTimer.Api-${{ github.ref_name }}-linux-x64/SurfTimer.Api-${{ github.ref_name }}-linux-x64.zip.sha256
+            artifacts/SurfTimer.Api-${{ github.ref_name }}-win-x64/SurfTimer.Api-${{ github.ref_name }}-win-x64.zip
+            artifacts/SurfTimer.Api-${{ github.ref_name }}-win-x64/SurfTimer.Api-${{ github.ref_name }}-win-x64.zip.sha256
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
