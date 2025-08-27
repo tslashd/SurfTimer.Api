@@ -17,11 +17,11 @@ jobs:
         uses: actions/checkout@v3
 
       # 2️⃣ Checkout SurfTimer.Shared
-      - name: Checkout SurfTimer.Shared
-        uses: actions/checkout@v3
-        with:
-          repository: tslashd/SurfTimer.Shared
-          path: SurfTimer.Shared
+      #- name: Checkout SurfTimer.Shared
+      #  uses: actions/checkout@v3
+      #  with:
+      #    repository: tslashd/SurfTimer.Shared
+      #    path: SurfTimer.Shared
 
       # 3️⃣ Setup .NET
       - name: Setup .NET 8
@@ -30,10 +30,10 @@ jobs:
           dotnet-version: 8.0.x
 
       # 4️⃣ Add SurfTimer.Shared as a temporary reference
-      - name: Add project reference dynamically
-        run: |
-          dotnet sln add SurfTimer.Shared/SurfTimer.Shared.csproj
-          dotnet add SurfTimer.Api.csproj reference SurfTimer.Shared/SurfTimer.Shared.csproj
+      #- name: Add project reference dynamically
+      #  run: |
+      #    dotnet sln add SurfTimer.Shared/SurfTimer.Shared.csproj
+      #    dotnet add SurfTimer.Api.csproj reference SurfTimer.Shared/SurfTimer.Shared.csproj
 
       # 5️⃣ Restore dependencies
       - name: Restore dependencies
