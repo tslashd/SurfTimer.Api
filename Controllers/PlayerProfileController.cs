@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SurfTimer.Api.Data;
+using SurfTimer.Shared.Data;
 using SurfTimer.Shared.DTO;
 using SurfTimer.Shared.Entities;
 using SurfTimer.Shared.Sql;
@@ -82,7 +82,7 @@ namespace SurfTimer.Api.Controllers
 
             try
             {
-                var insertedId = await _db.ExecuteAsync(
+                var insertedId = await _db.InsertAsync(
                     Queries.DB_QUERY_PP_INSERT_PROFILE,
                     sqlParameters
                 );
@@ -118,14 +118,16 @@ namespace SurfTimer.Api.Controllers
 
             try
             {
-                var insertedId = await _db.ExecuteAsync(
+                var affectedRows = await _db.ExecuteAsync(
                     Queries.DB_QUERY_PP_UPDATE_PROFILE,
                     sqlParameters
                 );
-                return CreatedAtAction(
-                    nameof(InsertProfile),
-                    new { id = insertedId },
-                    new PostResponseEntity { Id = (int)insertedId }
+                return Ok(
+                    new PostResponseEntity 
+                    { 
+                        Id = id, 
+                        Affected = affectedRows 
+                    }
                 );
             }
             catch (Exception ex)
@@ -151,7 +153,11 @@ namespace SurfTimer.Api.Controllers
                 if (rowsAffected == 0)
                 {
                     return Ok(
-                        new { message = $"Player profile with ID {id} deleted.", id = $"{id}" }
+                        new PostResponseEntity 
+                        { 
+                            Id = id, 
+                            Affected = rowsAffected 
+                        }
                     );
                 }
                 else

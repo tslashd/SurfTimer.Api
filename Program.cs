@@ -1,84 +1,10 @@
 ﻿using System.Reflection;
-using Dapper;
 using Microsoft.OpenApi.Models;
 using MySqlConnector;
-using SurfTimer.Api.Data;
 using SurfTimer.Api.Middleware;
-using SurfTimer.Api.Shared.TypeHandlers;
+using SurfTimer.Shared.Data;
+using SurfTimer.Shared.Data.MySql;
 using SurfTimer.Shared.JsonConverters;
-
-// Auth0
-/*
-var auth0Domain = Environment.GetEnvironmentVariable("AUTH0_DOMAIN") ?? throw new InvalidOperationException("AUTH0_DOMAIN is not set.");
-var auth0Audience = Environment.GetEnvironmentVariable("AUTH0_AUDIENCE") ?? throw new InvalidOperationException("AUTH0_AUDIENCE is not set.");
-var auth0Enable = Environment.GetEnvironmentVariable("AUTH0_ENABLE") ?? throw new InvalidOperationException("AUTH0_ENABLE is not set.");
-
-Console.WriteLine($"auth0Enable = {auth0Enable}");
-
-if (auth0Enable == "1")
-{
-    Console.WriteLine("Auth0 authentication is enabled.");
-    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-
-        options.Authority = $"https://{auth0Domain}/";
-        options.Audience = auth0Audience;
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            NameClaimType = ClaimTypes.NameIdentifier
-        };
-    });
-    builder.Services
-      .AddAuthorization(options =>
-      {
-          options.AddPolicy(
-            "read:messages",
-            policy => policy.Requirements.Add(
-              new HasScopeRequirement("read:messages", auth0Domain)
-            )
-          );
-      });
-    builder.Services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
-}
-else
-{
-    Console.WriteLine("Auth0 authentication is disabled.");
-    builder.Services.AddAuthorization(options =>
-    {
-        // Policy to always allow access
-        options.FallbackPolicy = new AuthorizationPolicyBuilder()
-            .RequireAssertion(_ => true)
-            .Build();
-    });
-}
-
-    // Bearer schema (add only if Auth0 is enabled)
-    if (auth0Enable == "1")
-    {
-        c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-        {
-            Description = "Enter JWT token. Example: Bearer {your token}",
-            Name = "Authorization",
-            In = ParameterLocation.Header,
-            Type = SecuritySchemeType.Http,
-            Scheme = "bearer",
-            BearerFormat = "JWT"
-        });
-
-        c.OperationFilter<AuthorizeCheckOperationFilter>();
-    }
-
-if (auth0Enable == "1")
-{
-    app.UseAuthentication();
-    Console.WriteLine("Auth0 authentication is enabled.");
-}
-
-*/
-
-Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
-SqlMapper.AddTypeHandler(new ReplayFramesStringHandler());
 
 var assembly = Assembly.GetExecutingAssembly();
 var title = assembly.GetName().Name;
@@ -105,7 +31,16 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddMySqlDataSource(connectionString);
-builder.Services.AddScoped<IDatabaseService, DatabaseService>();
+
+// IDbConnectionFactory -> using the already registered MySqlDataSource
+builder.Services.AddSingleton<IDbConnectionFactory>(sp =>
+{
+    var ds = sp.GetRequiredService<MySqlDataSource>();
+    return new MySqlDataSourceConnectionFactory(ds);
+});
+
+// User the SurfTimer.Shared Dapper integration
+builder.Services.AddScoped<SurfTimer.Shared.Data.IDatabaseService, DapperDatabaseService>();
 
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen(c =>
@@ -130,6 +65,9 @@ builder
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Dapper bootstrap (snake_case mapping + type handlers)
+DapperBootstrapper.Init();
 
 var app = builder.Build();
 

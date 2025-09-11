@@ -1,6 +1,6 @@
 ﻿using Dapper;
 using Microsoft.AspNetCore.Mvc;
-using SurfTimer.Api.Data;
+using SurfTimer.Shared.Data;
 using SurfTimer.Shared.DTO;
 using SurfTimer.Shared.Entities;
 using SurfTimer.Shared.Sql;
@@ -125,7 +125,7 @@ namespace SurfTimer.Api.Controllers
             }
         }
 
-        [ProducesResponseType(typeof(PostResponseEntity), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(PostResponseEntity), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpPut("updateMapTime/mapTimeId={mapTimeId:int}")]
         [EndpointSummary("Update an existing MapTime entry")]
@@ -202,14 +202,12 @@ namespace SurfTimer.Api.Controllers
                 );
 
                 // All good
-                return CreatedAtAction(
-                    nameof(UpdateMapTime),
-                    new { id = mapTimeId },
-                    new PostResponseEntity
-                    {
-                        Id = mapTimeId,
-                        Inserted = checkpointCount > 0 ? checkpointCount + 1 : 1,
-                        Trx = checkpointCount > 0,
+                return Ok(
+                    new PostResponseEntity 
+                    { 
+                        Id = mapTimeId, 
+                        Inserted = checkpointCount > 0 ? checkpointCount + 1 : 1, 
+                        Trx = checkpointCount > 0 
                     }
                 );
             }

@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SurfTimer.Api.Data;
+using SurfTimer.Shared.Data;
 using SurfTimer.Shared.DTO;
 using SurfTimer.Shared.Entities;
 using SurfTimer.Shared.Sql;
@@ -74,7 +74,7 @@ namespace SurfTimer.Api.Controllers
 
             try
             {
-                var insertedId = await _db.ExecuteAsync(
+                var insertedId = await _db.InsertAsync(
                     Queries.DB_QUERY_MAP_INSERT_INFO,
                     sqlParameters
                 );
@@ -90,10 +90,10 @@ namespace SurfTimer.Api.Controllers
             }
         }
 
-        [ProducesResponseType(typeof(PostResponseEntity), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(PostResponseEntity), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpPut("mapId={id=int}")]
-        [EndpointSummary("Update the information about the Map. Tier, Stages, Bonuses, etc.")]
+        [EndpointSummary("Update the information about the Map. Tier, Stages, Bonuses, etc. (Does NOT update Name)")]
         public async Task<ActionResult<PostResponseEntity>> UpdateMapInfo(
             [FromBody] MapDto mapDto,
             int id
@@ -113,14 +113,16 @@ namespace SurfTimer.Api.Controllers
 
             try
             {
-                var updatedId = await _db.ExecuteAsync(
+                var affectedRows = await _db.ExecuteAsync(
                     Queries.DB_QUERY_MAP_UPDATE_INFO_FULL,
                     sqlParameters
                 );
-                return CreatedAtAction(
-                    nameof(UpdateMapInfo),
-                    new { id = updatedId },
-                    new PostResponseEntity { Id = (int)updatedId }
+                return Ok(
+                    new PostResponseEntity 
+                    { 
+                        Id = id, 
+                        Affected = affectedRows 
+                    }
                 );
             }
             catch (Exception ex)
@@ -147,12 +149,6 @@ namespace SurfTimer.Api.Controllers
                 {
                     return NoContent();
                 }
-
-                //foreach (var run in mapRuns)
-                //{
-                //    _logger.LogInformation("Run: PlayerID={PlayerID}, RunID={RunID}, Name={Name}, ReplayFrames={ReplayFrames}", run.PlayerID, run.ID, run.Name, run.ReplayFrames?.ToString().Length);
-                //    //run.ReplayFramesBase64 = Convert.ToBase64String(run.ReplayFrames!);
-                //}
 
                 _logger.LogInformation(
                     "Retrieved all Map Runs for Map ID {ID}. Total {Total}",

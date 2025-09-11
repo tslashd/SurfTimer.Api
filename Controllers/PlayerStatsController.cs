@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SurfTimer.Api.Data;
+using SurfTimer.Shared.Data;
 using SurfTimer.Shared.Entities;
 using SurfTimer.Shared.Sql;
 
