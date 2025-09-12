@@ -5,43 +5,36 @@
 
 # .github/dependabot.yml
 version: 2
+
+# Define a single group spanning multiple ecosystems.
+multi-ecosystem-groups:
+  surfstack:                      # any name you like
+    # The group has its own schedule; individual updates inherit it.
+    schedule:
+      interval: "weekly"          # weekly check
+      day: "monday"               # every Monday
+      time: "04:00"               # at 04:00 local time
+      timezone: "Europe/Sofia"
+
 updates:
-  # 1) Keep GitHub Actions up to date (all workflows under .github/workflows)
+  # Keep GitHub Actions up to date (all workflows).
   - package-ecosystem: "github-actions"
-    directory: "/"  # covers .github/workflows under the repo root
-    schedule:
-      interval: "weekly"      # run weekly
-      day: "monday"           # every Monday
-      time: "04:00"           # at 04:00 local time
-      timezone: "Europe/Sofia"
+    directory: "/"                # covers .github/workflows
     target-branch: "main"
-    open-pull-requests-limit: 10
     commit-message:
-      prefix: "chore"         # e.g., "chore: bump actions/*"
+      prefix: "chore"
       include: "scope"
-    # Create a single PR that includes ALL action updates (major + minor + patch)
-    groups:
-      all-actions:
-        patterns: ["*"]
-        update-types: ["major", "minor", "patch"]
+    # Include all action dependencies in the multi-ecosystem PR.
+    patterns: ["*"]
+    multi-ecosystem-group: "surfstack"
 
-  # 2) Keep NuGet packages up to date across all .csproj/.sln found in this repo
+  # Keep all NuGet packages up to date across the repo.
   - package-ecosystem: "nuget"
-    directory: "/"  # Dependabot will discover projects recursively
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "04:00"
-      timezone: "Europe/Sofia"
+    directory: "/"                # Dependabot discovers projects recursively
     target-branch: "main"
-    open-pull-requests-limit: 10
     commit-message:
-      prefix: "chore"         # e.g., "chore: bump MySqlConnector"
+      prefix: "chore"
       include: "scope"
-    versioning-strategy: "auto"  # allow major/minor/patch according to semver info
-    # Create a single PR that includes ALL NuGet updates (major + minor + patch)
-    groups:
-      all-nuget:
-        patterns: ["*"]
-        update-types: ["major", "minor", "patch"]
-
+    # Include all NuGet dependencies in the same multi-ecosystem PR.
+    patterns: ["*"]
+    multi-ecosystem-group: "surfstack"
