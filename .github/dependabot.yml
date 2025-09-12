@@ -4,37 +4,23 @@
 # https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 
 # .github/dependabot.yml
+# Keep GitHub Actions up to date and open a SINGLE PR that aggregates all updates.
+
 version: 2
-
-# Define a single group spanning multiple ecosystems.
-multi-ecosystem-groups:
-  surfstack:                      # any name you like
-    # The group has its own schedule; individual updates inherit it.
-    schedule:
-      interval: "weekly"          # weekly check
-      day: "monday"               # every Monday
-      time: "04:00"               # at 04:00 local time
-      timezone: "Europe/Sofia"
-
 updates:
-  # Keep GitHub Actions up to date (all workflows).
-  - package-ecosystem: "github-actions"
-    directory: "/"                # covers .github/workflows
-    target-branch: "main"
+  - package-ecosystem: "github-actions"  # manage versions of actions used in .github/workflows
+    directory: "/"                       # repo root (covers .github/workflows)
+    schedule:
+      interval: "weekly"                 # run once a week
+      day: "monday"                      # every Monday
+      time: "04:00"                      # at 04:00 local time
+      timezone: "Europe/Sofia"
+    target-branch: "main"                # PRs will target this branch
+    open-pull-requests-limit: 10         # safety cap (not really needed with grouping)
     commit-message:
-      prefix: "chore"
+      prefix: "chore"                    # e.g., "chore: bump actions/*"
       include: "scope"
-    # Include all action dependencies in the multi-ecosystem PR.
-    patterns: ["*"]
-    multi-ecosystem-group: "surfstack"
-
-  # Keep all NuGet packages up to date across the repo.
-  - package-ecosystem: "nuget"
-    directory: "/"                # Dependabot discovers projects recursively
-    target-branch: "main"
-    commit-message:
-      prefix: "chore"
-      include: "scope"
-    # Include all NuGet dependencies in the same multi-ecosystem PR.
-    patterns: ["*"]
-    multi-ecosystem-group: "surfstack"
+    groups:
+      all-actions:                       # SINGLE PR with everything inside
+        patterns: ["*"]                  # match all actions
+        update-types: ["major", "minor", "patch"]  # include all types of bumps
