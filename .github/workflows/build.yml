@@ -12,12 +12,12 @@ jobs:
 
     steps:
       - name: Checkout API repo into subfolder
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           path: SurfTimer.Api
 
       - name: Checkout Shared repo (sibling folder)
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: tslashd/SurfTimer.Shared
           path: SurfTimer.Shared

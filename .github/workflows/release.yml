@@ -41,13 +41,13 @@ jobs:
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
       - name: Checkout API repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           path: SurfTimer.Api
           ref: ${{ env.RELEASE_TAG }}
 
       - name: Checkout Shared repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: tslashd/SurfTimer.Shared
           path: SurfTimer.Shared
