@@ -41,13 +41,13 @@ jobs:
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
       - name: Checkout API repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           path: SurfTimer.Api
           ref: ${{ env.RELEASE_TAG }}
 
       - name: Checkout Shared repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: tslashd/SurfTimer.Shared
           path: SurfTimer.Shared
@@ -57,7 +57,7 @@ jobs:
           # ref: v1.2.3
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 8.0.x
 
@@ -99,7 +99,7 @@ jobs:
           sha256sum "SurfTimer.Api-${RELEASE_TAG}-${{ matrix.rid }}.zip" > "SurfTimer.Api-${RELEASE_TAG}-${{ matrix.rid }}.zip.sha256"
 
       - name: Upload artifact (${{ matrix.rid }})
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: SurfTimer.Api-${{ env.RELEASE_TAG }}-${{ matrix.rid }}
           path: |
@@ -112,7 +112,7 @@ jobs:
 
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           path: ./artifacts
 
